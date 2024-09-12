@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>es6</title>
+  </head>
+  <body>
+    <canvas></canvas>
+    <button id="reset">Reset</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script></script>
+    <script>
+      let canvas = document.querySelector("canvas");
+      let width = (canvas.width = 550);
+      let height = (canvas.height = 300);
+      canvas.style.border = "solid 1px red";
+
+      let ctx = canvas.getContext("2d");
+
+      let gamestate;
+
+      function Bola(x, y, velocidadeX, velocidadeY, cor, tamanho) {
+        this.x = x;
+        this.y = y;
+        this.velocidadeX = velocidadeX;
+        this.velocidadeY = velocidadeY;
+        this.cor = cor;
+        this.tamanho = tamanho;
+        this.datasync = null;
+      }
+
+      Bola.prototype.setData = function (data) {
+        this.datasync = data;
+      };
+
+      Bola.prototype.desenhar = function () {
+        ctx.beginPath();
+        ctx.fillStyle = this.cor;
+        ctx.arc(this.x, this.y, this.tamanho, 0, 2 * Math.PI);
+        ctx.fill();
+      };
+
+      Bola.prototype.update = function () {
+        if (this.x + this.tamanho > width || this.x - this.tamanho < 0) {
+          this.velocidadeX = -this.velocidadeX;
+        }
+
+        if (this.y + this.tamanho > height || this.y - this.tamanho < 0) {
+          this.velocidadeY = -this.velocidadeY;
+        }
+
+        this.x = this.x + this.velocidadeX;
+        this.y = this.y + this.velocidadeY;
+      };
+
+      Bola.prototype.update2 = function () {
+        if (gamestate) {
+          this.x = gamestate.x;
+          this.y = gamestate.y;
+          this.velocidadeX = gamestate.velox;
+          this.velocidadeY = gamestate.veloy;
+        }
+      };
+
+      class Paddle {
+        constructor() {
+            this.velocity = 6;
+            this.x = 0;
+            this.y = canvas.height - 10;
+            this.handleKeyPress();
+        }
+
+        handleKeyPress() {
+          document.addEventListener("keydown", (event) => {
+            const keyName = event.key;
+            if (keyName.includes("ArrowLeft")) {
+                this.x -= this.velocity;
+            } else if (keyName.includes("ArrowRight")) {
+                this.x += this.velocity;
+            }
+          });
+        }
+
+        draw() {
+          ctx.beginPath();
+          ctx.fillStyle = this.cor;
+          ctx.rect(this.x, this.y, 100, 10);
+          ctx.fill();
+        }
+      }
+
+      let bola = new Bola(80, 80, 5, 5, "blue", 10);
+      let paddle = new Paddle();
+
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        paddle.draw();
+
+        bola.desenhar();
+        bola.update2();
+        bola.update();
+      }
+
+      //update
+      interval = setInterval(() => {
+        loop();
+      }, (1 / 100) * 1000);
+
+      var host = window.location.href;
+      console.log(host);
+      var socket = io.connect(host);
+
+      socket.on("game-started", (data) => {
+        console.log(data);
+      });
+
+      socket.on("game-sync", (data) => {
+        //console.log(data);
+        gamestate = data;
+      });
+
+      document.querySelector("#reset").addEventListener("click", () => {
+        socket.emit("reset");
+      });
+    </script>
+  </body>
+</html>
