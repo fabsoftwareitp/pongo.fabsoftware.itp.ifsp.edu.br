@@ -1,5 +1,4 @@
 var express = require("express");
-const Game = require("./Game");
 var app = express();
 const HERTZ = 30; //Game updates per second
 const port = process.env.PORT || 80;
@@ -68,7 +67,7 @@ setInterval(() => {
   for (const key in users) {
     users[key].socket.emit("game-sync", gamestate);
   }
-  console.log(gamestate);
+  //console.log(gamestate);
 
   //io.emit("game-sync", gamestate);
 }, (1 / HERTZ) * 1000);
