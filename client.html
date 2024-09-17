@@ -6,100 +6,134 @@
     <title>es6</title>
   </head>
   <body>
-    <canvas></canvas>
+    <canvas></canvas><br>
+    <h1 id="p1">0</h1>
+    <h1 id="p2">0</h1>
     <button id="reset">Reset</button>
     <script src="/socket.io/socket.io.js"></script>
     <script></script>
     <script>
+      var socket = io();
       let canvas = document.querySelector("canvas");
-      let width = (canvas.width = 550);
-      let height = (canvas.height = 300);
+      let width = (canvas.width = 615);
+      let height = (canvas.height = 800);
       canvas.style.border = "solid 1px red";
 
       let ctx = canvas.getContext("2d");
 
       let gamestate;
 
-      function Bola(x, y, velocidadeX, velocidadeY, cor, tamanho) {
+      class Bola{
+      
+      constructor(x, y, ballSpeed, tamanho, cor) {
         this.x = x;
         this.y = y;
-        this.velocidadeX = velocidadeX;
-        this.velocidadeY = velocidadeY;
+        this.velox = 5;
+        this.veloy = 5;
         this.cor = cor;
         this.tamanho = tamanho;
         this.datasync = null;
       }
 
-      Bola.prototype.setData = function (data) {
+      setData(data) {
         this.datasync = data;
       };
 
-      Bola.prototype.desenhar = function () {
+      desenhar() {
         ctx.beginPath();
         ctx.fillStyle = this.cor;
         ctx.arc(this.x, this.y, this.tamanho, 0, 2 * Math.PI);
         ctx.fill();
       };
 
-      Bola.prototype.update = function () {
-        if (this.x + this.tamanho > width || this.x - this.tamanho < 0) {
-          this.velocidadeX = -this.velocidadeX;
-        }
-
-        if (this.y + this.tamanho > height || this.y - this.tamanho < 0) {
-          this.velocidadeY = -this.velocidadeY;
-        }
-
-        this.x = this.x + this.velocidadeX;
-        this.y = this.y + this.velocidadeY;
-      };
-
-      Bola.prototype.update2 = function () {
+      update() {
         if (gamestate) {
-          this.x = gamestate.x;
-          this.y = gamestate.y;
-          this.velocidadeX = gamestate.velox;
-          this.velocidadeY = gamestate.veloy;
+          this.x = gamestate.ball.x;
+          this.y = gamestate.ball.y;
+          this.velox = gamestate.velox;
+          this.veloy = gamestate.veloy;
         }
       };
+    }
 
       class Paddle {
-        constructor() {
-            this.velocity = 6;
-            this.x = 0;
-            this.y = canvas.height - 10;
-            this.handleKeyPress();
+        constructor(y, color) {
+            this.color = color;
+            this.velocity = 8;
+            this.pos = width/2;
+            this.y = y;
         }
 
-        handleKeyPress() {
-          document.addEventListener("keydown", (event) => {
-            const keyName = event.key;
-            if (keyName.includes("ArrowLeft")) {
-                this.x -= this.velocity;
-            } else if (keyName.includes("ArrowRight")) {
-                this.x += this.velocity;
-            }
-          });
+        update() {
+          
         }
 
         draw() {
           ctx.beginPath();
-          ctx.fillStyle = this.cor;
-          ctx.rect(this.x, this.y, 100, 10);
+          ctx.fillStyle = this.color;
+          ctx.rect(this.pos, this.y, 80, 15);
           ctx.fill();
         }
       }
 
-      let bola = new Bola(80, 80, 5, 5, "blue", 10);
-      let paddle = new Paddle();
+      socket.on('score', (p1, p2) => {
+        document.querySelector("#p1").innerHTML = p1;
+        document.querySelector("#p2").innerHTML = p2;
+      })
+
+      socket.on('player1', (id) => {
+        if(id === socket.id){
+          window.addEventListener('keydown', (e) => {
+            console.log('a');
+            if (e.key === "ArrowLeft") {
+              player1.pos -= player1.velocity;
+              socket.emit("player1Mov", player1.pos);
+            }else if (e.key === "ArrowRight") {
+              player1.pos += player1.velocity;
+              socket.emit("player1Mov", player1.pos);
+            }
+          })
+        }
+      })
+
+      socket.on('player2', (id) => {
+        socket.emit('sla', "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        if(id === socket.id){
+          window.addEventListener('keydown', (e) => {
+            console.log('b');
+            if (e.key === "ArrowLeft") {
+              player2.pos -= player2.velocity;
+              socket.emit("player2Mov", player2.pos);
+            }else if (e.key === "ArrowRight") {
+              player2.pos += player2.velocity;
+              socket.emit("player2Mov", player2.pos);
+            }
+          })
+        }
+      })
+
+      let bola = new Bola(80, 80, 5, 10, "blue", 10);
+      let player1 = new Paddle(canvas.height - 15, "blue");
+      let player2 = new Paddle(0, "red");
 
       function loop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        paddle.draw();
+        socket.on('player1Mov', (pos) => {
+          player1.pos = pos;
+        })
+
+        socket.on('player2Mov', (pos) => {
+          player2.pos = pos;
+        })
+
+        player1.draw();
+        player1.update();
+
+        player2.draw();
+        player2.update();
 
         bola.desenhar();
-        bola.update2();
         bola.update();
       }
 
