@@ -15,6 +15,10 @@ app.get("/", function (req, res, next) {
   res.sendFile(__dirname + "/client.html");
 });
 
+app.use(express.static('img'));
+app.use(express.static('css'));
+app.use(express.static('sounds'));
+
 class GameState {
   constructor() {
     this.ball = {x: 615/2, y: 800/2, tamanho: 10};
@@ -87,10 +91,21 @@ io.on("connection", (socket) => {
     io.emit('player2Mov', pos);
   })
 
-  socket.on("reset", () => {
-  });
+  socket.on('reset', (reset) => {
+    io.emit('reset', reset);
+  })
+
+  socket.on('loading', (green, none) => {
+    io.emit('loading', green, none);
+  })
+
+  socket.on('start', () => {
+    io.emit('start', '');
+  })
 
   socket.on('disconnect', () =>{
+    io.emit('loading', 'white', 'flex');
+    io.emit('left', '');
     users -= 1;
   })
 });
@@ -103,7 +118,7 @@ setInterval(() => {
   //console.log(gamestate);
 
   //io.emit("game-sync", gamestate);
-}, (1 / HERTZ) * 1000);
+}, (1 / HERTZ) * 900);
 
 server.listen(3000, () => {
   console.log("listening on *:3000");

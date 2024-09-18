@@ -1,23 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>es6</title>
+    <title>Pong</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/style.css">
   </head>
-  <body>
-    <canvas></canvas><br>
+  <body id="tela">
+    <img id="fab-logo" src="/Fab.png" alt="Logo da Fábrica de Software">
     <h1 id="p1">0</h1>
+    <canvas width="615" height="800" id="game"></canvas>
     <h1 id="p2">0</h1>
+  
+    <div class="main-div">
+      
+      <p id="waiting">Esperando jogadores</p>
+  
+      <button id="start" disabled>Começar</button>
+    
+      <div>
+        <button class="loading" type="disabled"></button>
+        <button class="loading" type="disabled"></button>
+      </div>
+  
+    </div>
+    
     <button id="reset">Reset</button>
-    <script src="/socket.io/socket.io.js"></script>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
     <script></script>
     <script>
       var socket = io();
-      let canvas = document.querySelector("canvas");
+      let canvas = document.querySelector("#game");
       let width = (canvas.width = 615);
       let height = (canvas.height = 800);
-      canvas.style.border = "solid 1px red";
+
+      var score1 = document.getElementById("p1");
+      var player1score = 0;
+      var score2 = document.getElementById("p2");
+      var player2score = 0;
+
+      var startButton = document.getElementById("start");
+      var waitMessage = document.getElementById("waiting");
+      var loadingDiv = document.querySelector('.div.loading')
+      var loadingButtons = document.querySelectorAll('.loading')
+      var controlButtons = document.querySelectorAll('.control')
+      var resetButton = document.getElementById("reset");
+      let reset = false;
 
       let ctx = canvas.getContext("2d");
 
@@ -59,7 +87,7 @@
       class Paddle {
         constructor(y, color) {
             this.color = color;
-            this.velocity = 8;
+            this.velocity = 10;
             this.pos = width/2;
             this.y = y;
         }
@@ -76,13 +104,47 @@
         }
       }
 
-      socket.on('score', (p1, p2) => {
-        document.querySelector("#p1").innerHTML = p1;
-        document.querySelector("#p2").innerHTML = p2;
+      startButton.addEventListener("click", () => {
+        socket.emit('start', '');
       })
+
+      socket.on('start', () => {
+        score1.style.display="block";
+        score2.style.display="block";
+        canvas.style.display="block";
+        startButton.style.display="none";
+        resetButton.style.display="block";
+        loadingButtons[0].style.display = 'none';
+        loadingButtons[1].style.display = 'none';
+
+        //update
+        interval = setInterval(() => {
+          loop();
+        }, (1 / 100) * 1000);
+    })
+
+      socket.on('score', (p1, p2) => {
+        score1.innerHTML = p1;
+        score2.innerHTML = p2;
+      })
+
+      resetButton.addEventListener("click", () => {
+        reset = true;
+        socket.emit('reset', reset);
+      })
+
+      // Recebe do server o evento que reseta o jogo nos clientes
+      socket.on('reset', (re) => {
+        reset = re;
+      })    
 
       socket.on('player1', (id) => {
         if(id === socket.id){
+
+          socket.on('left', () => {
+            location.reload();
+          })
+
           window.addEventListener('keydown', (e) => {
             console.log('a');
             if (e.key === "ArrowLeft") {
@@ -93,12 +155,31 @@
               socket.emit("player1Mov", player1.pos);
             }
           })
+
+          loadingButtons[0].style.backgroundColor = 'green';
+
+          // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
+            socket.on('loading', (color, display) => {
+              loadingButtons[1].style.backgroundColor = color;
+              waitMessage.style.display = display;
+              if(display == 'none') {
+                startButton.disabled = false;
+              }else{
+                startButton.disabled = true;
+              }
+            })
+
         }
       })
 
       socket.on('player2', (id) => {
         socket.emit('sla', "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         if(id === socket.id){
+
+          socket.on('left', () => {
+            location.reload();
+          })
+
           window.addEventListener('keydown', (e) => {
             console.log('b');
             if (e.key === "ArrowLeft") {
@@ -109,15 +190,41 @@
               socket.emit("player2Mov", player2.pos);
             }
           })
+
+          // emite o evento loading que vai mudar os botões de loading e a mensagem de espera de jogador
+          socket.emit('loading', 'green', 'none');
+        
+          loadingButtons[0].style.backgroundColor = 'green';
+          waitMessage.style.display = 'none';
+
+          // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
+          socket.on('loading', (color, display) => {
+            loadingButtons[1].style.backgroundColor = color;
+            waitMessage.style.display = display;
+            if(display == 'none') {
+              startButton.disabled = false;
+            }else{
+              startButton.disabled = true;
+            }
+          })
+
         }
       })
 
-      let bola = new Bola(80, 80, 5, 10, "blue", 10);
+      let bola = new Bola(80, 80, 5, 10, "white", 10);
       let player1 = new Paddle(canvas.height - 15, "blue");
       let player2 = new Paddle(0, "red");
 
       function loop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillRect(0, 0, 15, height);
+        ctx.fillRect(width - 15, 0, 15, height);
+
+        // draw dotted line down the middle
+        for (let i = 15*2; i < width - 15; i += 15 * 2) {
+          ctx.fillRect(i, height / 2 - 15 / 2, 15, 15);
+        }
 
         socket.on('player1Mov', (pos) => {
           player1.pos = pos;
@@ -137,11 +244,6 @@
         bola.update();
       }
 
-      //update
-      interval = setInterval(() => {
-        loop();
-      }, (1 / 100) * 1000);
-
       var host = window.location.href;
       console.log(host);
       var socket = io.connect(host);
@@ -154,10 +256,5 @@
         //console.log(data);
         gamestate = data;
       });
-
-      document.querySelector("#reset").addEventListener("click", () => {
-        socket.emit("reset");
-      });
     </script>
-  </body>
 </html>

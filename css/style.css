@@ -1,0 +1,104 @@
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+  
+  #tela {
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #game {
+    display: none;
+  }
+  
+  #p1,
+  #p2 {
+    color: white;
+    font-size: 150px; 
+    position: absolute; 
+    display: none;
+  }
+  
+  #p1 {
+    left: 25%;
+    text-shadow: 5px 5px 0px #db241a;
+  }
+  
+  #p2 {
+    right: 25%;
+    text-shadow: 5px 5px 0px #0288f5;
+  }
+  
+  #controle {
+    min-width:100%;
+    background-color:#fd624c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  #controle > img {
+    filter:brightness(5);
+    width: 25%;
+  }
+  
+  #controle > svg {
+    width: 30%;
+  }
+  
+  #fab-logo {
+    position: absolute;
+    width: 25vw;
+    filter: opacity(0.1);
+    z-index: -1;
+  }
+  
+  #start {
+    width: 20vw;
+    height: 5vh;
+    font-size: 2rem;
+    border-radius: 15px;
+  }
+  
+  #waiting {
+    width: 20vw;
+    bottom: 40%;
+    font-size: 2rem;
+    border-radius: 15px;
+    color: aliceblue;
+  }
+  
+  .main-div {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+    
+  }
+  
+  .loading {
+    width: 40px;
+    height: 20px;
+    border-radius: 20px;
+    border: 2px solid black;
+  }
+  
+  #reset {
+    display: none;
+    position: absolute;
+    right: 15%;
+    bottom: 15%;
+    border: 75px;
+    height: 75px;
+    width: 75px;
+    border-radius: 50%;
+  }
+  
+  #start:hover,
+  #reset:hover {
+    background-color: #888;
+  }
