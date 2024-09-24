@@ -11,13 +11,30 @@ const io = new Server(server, {
   connectionStateRecovery: {}
 });
 
-app.get("/", function (req, res, next) {
-  res.sendFile(__dirname + "/client.html");
-});
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+})
+
+app.all("/tela", (req, res) => {
+  res.sendFile(__dirname + "/tela.html");
+  app.locals.roomID = req.query.roomID;
+})
 
 app.use(express.static('img'));
 app.use(express.static('css'));
 app.use(express.static('sounds'));
+
+app.use(express.urlencoded({
+  extended: true
+}))
+
+app.post('/verify', (req, res) => {
+  if(rooms.indexOf(req.body.roomID) == -1){
+    res.redirect('/');
+  }else{
+    res.redirect('/tela?roomID='+req.body.roomID);;
+  }
+})
 
 class GameState {
   constructor() {
@@ -38,7 +55,7 @@ class GameState {
       this.veloy = -this.veloy;
     }
 
-    if(this.ball.y == this.height-15 && this.ball.x >= player1Pos && this.ball.x <= player1Pos+100 || this.ball.y == 15 && this.ball.x >= player2Pos && this.ball.x <= player2Pos+100){
+    if(this.ball.y == this.height-20 && this.ball.x >= player1Pos && this.ball.x <= player1Pos+100 || this.ball.y == 20 && this.ball.x >= player2Pos && this.ball.x <= player2Pos+100){
       this.veloy = -this.veloy;
     }
 
@@ -65,48 +82,60 @@ let player2Pos = 615/2;
 let player1Score = 0;
 let player2Score = 0;
 
-let users = 0
+const rooms = [];
+let roomUsers = 0;
 
 io.on("connection", (socket) => {
-  console.log('connect');
-  users += 1;
+  socket.on('userConnection', ()=> {
+    const roomID = app.locals.roomID;
+    console.log(`[${socket.id}] Usuário Conectado`);
+    console.log(roomID);
 
-  if (users == 2) {
-    io.emit('player1', socket.id);
-  }else if(users == 4){
-    io.emit('player2', socket.id);
-  }
+    if(rooms.indexOf(roomID) == -1){
+      socket.join(roomID);
+      io.to(roomID).emit("player1", socket.id);
+      rooms.push(roomID);
+    }else{
+      socket.join(roomID);
+      io.to(roomID).emit("player2", socket.id);
+    }
 
-  socket.on('sla', (e) => {
-    console.log(e);
-  })
+    socket.on('player1Mov', (pos) => {
+      player1Pos = pos;
+      io.to(roomID).emit('player1Mov', pos);
+    })
+    
+    socket.on('player2Mov', (pos) => {
+      player2Pos = pos;
+      io.to(roomID).emit('player2Mov', pos);
+    })
 
-  socket.on('player1Mov', (pos) => {
-    player1Pos = pos;
-    io.emit('player1Mov', pos);
-  })
+    socket.on('reset', (reset) => {
+      io.to(roomID).emit('reset', reset);
+    })
 
-  socket.on('player2Mov', (pos) => {
-    player2Pos = pos;
-    io.emit('player2Mov', pos);
-  })
+    socket.on('loading', (green, none) => {
+      io.to(roomID).emit('loading', green, none);
+    })
 
-  socket.on('reset', (reset) => {
-    io.emit('reset', reset);
-  })
+    socket.on('start', () => {
+      io.to(roomID).emit('start', '');
+    })
 
-  socket.on('loading', (green, none) => {
-    io.emit('loading', green, none);
-  })
+    console.log(roomUsers);
 
-  socket.on('start', () => {
-    io.emit('start', '');
-  })
-
-  socket.on('disconnect', () =>{
-    io.emit('loading', 'white', 'flex');
-    io.emit('left', '');
-    users -= 1;
+    socket.on("disconnect", () => {
+      console.log(`[${socket.id}] Usuário Desconectado`);
+      console.log(roomUsers);
+      
+      io.to(roomID).emit('loading', 'white', 'flex');
+      io.to(roomID).emit('left', '');
+      if(roomUsers === 0){
+        rooms.splice(rooms.indexOf(roomID), 1);
+      }else{
+        roomUsers -= 1;
+      }
+    });
   })
 });
 
@@ -118,7 +147,7 @@ setInterval(() => {
   //console.log(gamestate);
 
   //io.emit("game-sync", gamestate);
-}, (1 / HERTZ) * 900);
+}, (1 / HERTZ) * 1000);
 
 server.listen(3000, () => {
   console.log("listening on *:3000");

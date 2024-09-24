@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+</head>
+<body>
+    <div>
+        <h1>Entrar</h1>
+        <form method="POST" action="/verify" id="form">
+            Nome da sala :<input type="text" required id="name" name="roomID">
+            <button id="submitButton">Entrar</button>
+        </form>
+    </div>
+    <button id="createRoom">Criar Sala</button>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    let form = document.querySelector('#form');
+    let name = document.querySelector('#name');
+    let createRoom = document.querySelector('#createRoom');
+
+    function makeid(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+        return result;
+    }
+
+    createRoom.addEventListener('click', () => {
+        const roomID = makeid(8);
+        window.location.href = "/tela?roomID="+roomID;
+    })
+
+</script>
+</html>
