@@ -149,6 +149,10 @@
             location.reload();
           })
 
+          socket.on('player2Mov', (pos) => {
+            player2.pos = pos;
+          })
+
           window.addEventListener('keydown', (e) => {
             if (e.key === "ArrowLeft") {
               player1.pos -= player1.velocity;
@@ -180,6 +184,10 @@
 
           socket.on('left', () => {
             location.reload();
+          })
+
+          socket.on('player1Mov', (pos) => {
+            player1.pos = pos;
           })
 
           window.addEventListener('keydown', (e) => {
@@ -226,14 +234,6 @@
         for (let i = 15*2; i < width - 15; i += 15 * 2) {
           ctx.fillRect(i, height / 2 - 15 / 2, 15, 15);
         }
-
-        socket.on('player1Mov', (pos) => {
-          player1.pos = pos;
-        })
-
-        socket.on('player2Mov', (pos) => {
-          player2.pos = pos;
-        })
 
         player1.draw();
         player1.update();
