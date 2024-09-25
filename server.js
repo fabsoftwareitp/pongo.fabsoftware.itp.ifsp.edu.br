@@ -36,6 +36,7 @@ app.post('/verify', (req, res) => {
   }
 })
 
+// classe do estado de jogo
 class GameState {
   constructor() {
     this.ball = {x: 615/2, y: 800/2, tamanho: 10};
@@ -46,6 +47,7 @@ class GameState {
     this.player1 = {pos: 0};
   }
 
+  // mecânicas da bolinha
   ballUpdate() {
     if (this.ball.x + this.ball.tamanho > this.width || this.ball.x - this.ball.tamanho < 0) {
       this.velox = -this.velox;
@@ -74,20 +76,26 @@ class GameState {
   }
 
 }
+let gamestate = null;
 
-const gamestate = new GameState();
+// Posição da barra azul
 let player1Pos = 615/2;
+// Posição da barra vermelha
 let player2Pos = 615/2;
 
+// Pontuação da barra azul
 let player1Score = 0;
+// Pontuação da barra vermelha
 let player2Score = 0;
 
+// Lista de salas
 const rooms = [];
 let roomUsers = 0;
+let roomID = app.locals.roomID;
 
 io.on("connection", (socket) => {
   socket.on('userConnection', ()=> {
-    const roomID = app.locals.roomID;
+    roomID = app.locals.roomID;
     console.log(`[${socket.id}] Usuário Conectado`);
     console.log(roomID);
 
@@ -119,14 +127,13 @@ io.on("connection", (socket) => {
     })
 
     socket.on('start', () => {
+      gamestate = new GameState();
+      gameStart();
       io.to(roomID).emit('start', '');
     })
 
-    console.log(roomUsers);
-
     socket.on("disconnect", () => {
       console.log(`[${socket.id}] Usuário Desconectado`);
-      console.log(roomUsers);
       
       io.to(roomID).emit('loading', 'white', 'flex');
       io.to(roomID).emit('left', '');
@@ -136,18 +143,20 @@ io.on("connection", (socket) => {
         roomUsers -= 1;
       }
     });
+
+    function gameStart(){
+      //sync data to client
+      setInterval(() => {
+        io.to(roomID).emit('score', player1Score, player2Score);
+        gamestate.ballUpdate();
+        io.to(roomID).emit("game-sync", gamestate);
+        //console.log(gamestate);
+    
+        //io.emit("game-sync", gamestate);
+      }, (1 / HERTZ) * 1000);
+    }
   })
 });
-
-//sync data to client
-setInterval(() => {
-  io.emit('score', player1Score, player2Score);
-  gamestate.ballUpdate();
-  io.emit("game-sync", gamestate);
-  //console.log(gamestate);
-
-  //io.emit("game-sync", gamestate);
-}, (1 / HERTZ) * 1000);
 
 server.listen(3000, () => {
   console.log("listening on *:3000");

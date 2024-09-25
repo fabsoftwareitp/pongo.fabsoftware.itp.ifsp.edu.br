@@ -27,40 +27,40 @@
     <button id="reset">Reset</button>
   </body>
   <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
+  <script>
+    var socket = io();
 
-      socket.emit('userConnection', '');
-      let canvas = document.querySelector("#game");
-      let width = (canvas.width = 615);
-      let height = (canvas.height = 800);
+    socket.emit('userConnection', '');
+    let canvas = document.querySelector("#game");
+    let width = (canvas.width = 615);
+    let height = (canvas.height = 800);
 
-      var score1 = document.getElementById("p1");
-      var player1score = 0;
-      var score2 = document.getElementById("p2");
-      var player2score = 0;
+    var score1 = document.getElementById("p1");
+    var player1score = 0;
+    var score2 = document.getElementById("p2");
+    var player2score = 0;
 
-      var startButton = document.getElementById("start");
-      var waitMessage = document.getElementById("waiting");
-      var loadingDiv = document.querySelector('.div.loading')
-      var loadingButtons = document.querySelectorAll('.loading')
-      var controlButtons = document.querySelectorAll('.control')
-      var resetButton = document.getElementById("reset");
-      let reset = false;
+    var startButton = document.getElementById("start");
+    var waitMessage = document.getElementById("waiting");
+    var loadingDiv = document.querySelector('.div.loading')
+    var loadingButtons = document.querySelectorAll('.loading')
+    var controlButtons = document.querySelectorAll('.control')
+    var resetButton = document.getElementById("reset");
+    let reset = false;
 
-      let ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
 
-      let gamestate;
+    let gamestate;
 
-      class Bola{
+    class Bola{
       
-      constructor(x, y, ballSpeed, tamanho, cor) {
-        this.x = x;
-        this.y = y;
-        this.velox = 5;
-        this.veloy = 5;
-        this.cor = cor;
-        this.tamanho = tamanho;
+    constructor(x, y, ballSpeed, tamanho, cor) {
+      this.x = x;
+      this.y = y;
+      this.velox = 5;
+      this.veloy = 5;
+      this.cor = cor;
+      this.tamanho = tamanho;
         this.datasync = null;
       }
 
