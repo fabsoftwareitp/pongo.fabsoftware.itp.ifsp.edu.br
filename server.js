@@ -44,7 +44,6 @@ class GameState {
     this.veloy = 5;
     this.width = 615;
     this.height = 800;
-    this.player1 = {pos: 0};
   }
 
   // mecânicas da bolinha
@@ -77,6 +76,7 @@ class GameState {
 
 }
 let gamestate = null;
+const gamestates = [];
 
 // Posição da barra azul
 let player1Pos = 615/2;
@@ -103,9 +103,11 @@ io.on("connection", (socket) => {
       socket.join(roomID);
       io.to(roomID).emit("player1", socket.id);
       rooms.push(roomID);
+      roomUsers += 1;
     }else{
       socket.join(roomID);
       io.to(roomID).emit("player2", socket.id);
+      roomUsers += 1;
     }
 
     socket.on('player1Mov', (pos) => {
@@ -128,7 +130,16 @@ io.on("connection", (socket) => {
 
     socket.on('start', () => {
       gamestate = new GameState();
-      gameStart();
+
+      setInterval(() => {
+        io.to(roomID).emit('score', player1Score, player2Score);
+        gamestate.ballUpdate();
+        io.to(roomID).emit("game-sync", gamestate);
+        //console.log(gamestate);
+    
+        //io.emit("game-sync", gamestate);
+      }, (1 / HERTZ) * 1000);
+
       io.to(roomID).emit('start', '');
     })
 
@@ -143,18 +154,6 @@ io.on("connection", (socket) => {
         roomUsers -= 1;
       }
     });
-
-    function gameStart(){
-      //sync data to client
-      setInterval(() => {
-        io.to(roomID).emit('score', player1Score, player2Score);
-        gamestate.ballUpdate();
-        io.to(roomID).emit("game-sync", gamestate);
-        //console.log(gamestate);
-    
-        //io.emit("game-sync", gamestate);
-      }, (1 / HERTZ) * 1000);
-    }
   })
 });
 

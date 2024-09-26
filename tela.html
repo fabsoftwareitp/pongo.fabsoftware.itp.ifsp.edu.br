@@ -54,13 +54,13 @@
 
     class Bola{
       
-    constructor(x, y, ballSpeed, tamanho, cor) {
-      this.x = x;
-      this.y = y;
-      this.velox = 5;
-      this.veloy = 5;
-      this.cor = cor;
-      this.tamanho = tamanho;
+      constructor(x, y, ballSpeed, tamanho, cor) {
+        this.x = x;
+        this.y = y;
+        this.velox = 5;
+        this.veloy = 5;
+        this.cor = cor;
+        this.tamanho = tamanho;
         this.datasync = null;
       }
 
@@ -85,176 +85,180 @@
       };
     }
 
-      class Paddle {
-        constructor(y, color) {
-            this.color = color;
-            this.velocity = 10;
-            this.pos = width/2;
-            this.y = y;
-        }
+    class Paddle {
+      constructor(y, color) {
+          this.color = color;
+          this.velocity = 10;
+          this.pos = width/2;
+          this.y = y;
+      }
 
-        update() {
-          if(this.pos > width - 100){
-            this.pos = width - 100;
-          }else if(this.pos < 15){
-            this.pos = 15;
-          }
-        }
-
-        draw() {
-          ctx.beginPath();
-          ctx.fillStyle = this.color;
-          ctx.rect(this.pos, this.y, 80, 15);
-          ctx.fill();
+      update() {
+        if(this.pos > width - 100){
+          this.pos = width - 100;
+        }else if(this.pos < 15){
+          this.pos = 15;
         }
       }
 
-      startButton.addEventListener("click", () => {
-        socket.emit('start', '');
-      })
+      draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.rect(this.pos, this.y, 80, 15);
+        ctx.fill();
+      }
 
-      socket.on('start', () => {
-        score1.style.display="block";
-        score2.style.display="block";
-        canvas.style.display="block";
-        startButton.style.display="none";
-        resetButton.style.display="block";
-        loadingButtons[0].style.display = 'none';
-        loadingButtons[1].style.display = 'none';
+    }
 
-        //update
-        interval = setInterval(() => {
-          loop();
-        }, (1 / 100) * 1000);
+    startButton.addEventListener("click", () => {
+      socket.emit('start', '');
     })
 
-      socket.on('score', (p1, p2) => {
-        score1.innerHTML = p1;
-        score2.innerHTML = p2;
-      })
+    socket.on('start', () => {
+      score1.style.display="block";
+      score2.style.display="block";
+      canvas.style.display="block";
+      startButton.style.display="none";
+      resetButton.style.display="block";
+      loadingButtons[0].style.display = 'none';
+      loadingButtons[1].style.display = 'none';
 
-      resetButton.addEventListener("click", () => {
-        reset = true;
-        socket.emit('reset', reset);
-      })
+      //update
+      interval = setInterval(() => {
+        loop();
+      }, (1 / 100) * 1000);
+
+    })
+
+    socket.on('score', (p1, p2) => {
+      score1.innerHTML = p1;
+      score2.innerHTML = p2;
+    })
+
+    resetButton.addEventListener("click", () => {
+      reset = true;
+      socket.emit('reset', reset);
+    })
 
       // Recebe do server o evento que reseta o jogo nos clientes
-      socket.on('reset', (re) => {
-        reset = re;
-      })    
+    socket.on('reset', (re) => {
+      reset = re;
+    })    
 
-      socket.on('player1', (id) => {
-        if(id === socket.id){   
-          socket.on('left', () => {
-            location.reload();
-          })
+    socket.on('player1', (id) => {
+      if(id === socket.id){   
+        socket.on('left', () => {
+          location.reload();
+        })
 
-          socket.on('player2Mov', (pos) => {
-            player2.pos = pos;
-          })
+        socket.on('player2Mov', (pos) => {
+          player2.pos = pos;
+        })
 
-          window.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowLeft") {
-              player1.pos -= player1.velocity;
-              socket.emit("player1Mov", player1.pos);
-            }else if (e.key === "ArrowRight") {
-              player1.pos += player1.velocity;
-              socket.emit("player1Mov", player1.pos);
-            }
-          })
+        window.addEventListener('keydown', (e) => {
+          if (e.key === "ArrowLeft") {
+            player1.pos -= player1.velocity;
+            socket.emit("player1Mov", player1.pos);
+          }else if (e.key === "ArrowRight") {
+            player1.pos += player1.velocity;
+            socket.emit("player1Mov", player1.pos);
+          }
+        })
 
-          loadingButtons[0].style.backgroundColor = 'green';
+        loadingButtons[0].style.backgroundColor = 'green';
 
-          // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
-            socket.on('loading', (color, display) => {
-              loadingButtons[1].style.backgroundColor = color;
-              waitMessage.style.display = display;
-              if(display == 'none') {
-                startButton.disabled = false;
-              }else{
-                startButton.disabled = true;
-              }
-            })
+        // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
+        socket.on('loading', (color, display) => {
+          loadingButtons[1].style.backgroundColor = color;
+          waitMessage.style.display = display;
 
-        }
-      })
+          if(display == 'none') {
+            startButton.disabled = false;
+          }else{
+            startButton.disabled = true;
+          }
 
-      socket.on('player2', (id) => {
-        if(id === socket.id){
+        })
+      }
+    })
 
-          socket.on('left', () => {
-            location.reload();
-          })
+    socket.on('player2', (id) => {
+      if(id === socket.id){
 
-          socket.on('player1Mov', (pos) => {
-            player1.pos = pos;
-          })
+        socket.on('left', () => {
+          location.reload();
+        })
 
-          window.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowLeft") {
-              player2.pos -= player2.velocity;
-              socket.emit("player2Mov", player2.pos);
-            }else if (e.key === "ArrowRight") {
-              player2.pos += player2.velocity;
-              socket.emit("player2Mov", player2.pos);
-            }
-          })
+        socket.on('player1Mov', (pos) => {
+          player1.pos = pos;
+        })
 
-          // emite o evento loading que vai mudar os botões de loading e a mensagem de espera de jogador
-          socket.emit('loading', 'green', 'none');
+        window.addEventListener('keydown', (e) => {
+          if (e.key === "ArrowLeft") {
+            player2.pos -= player2.velocity;
+            socket.emit("player2Mov", player2.pos);
+          }else if (e.key === "ArrowRight") {
+            player2.pos += player2.velocity;
+            socket.emit("player2Mov", player2.pos);
+          }
+        })
+
+        // emite o evento loading que vai mudar os botões de loading e a mensagem de espera de jogador
+        socket.emit('loading', 'green', 'none');
         
-          loadingButtons[0].style.backgroundColor = 'green';
-          waitMessage.style.display = 'none';
+        loadingButtons[0].style.backgroundColor = 'green';
+        waitMessage.style.display = 'none';
 
-          // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
-          socket.on('loading', (color, display) => {
-            loadingButtons[1].style.backgroundColor = color;
-            waitMessage.style.display = display;
-            if(display == 'none') {
-              startButton.disabled = false;
-            }else{
-              startButton.disabled = true;
-            }
-          })
+        // Recebe o evento loading que vai mudar a cor do botão que simula um usuario e muda a mensagem de espera de jogadores
+        socket.on('loading', (color, display) => {
+          loadingButtons[1].style.backgroundColor = color;
+          waitMessage.style.display = display;
+          if(display == 'none') {
+            startButton.disabled = false;
+          }else{
+            startButton.disabled = true;
+          }
+        })
 
-        }
-      })
+      }
+    })
 
-      let bola = new Bola(80, 80, 5, 10, "white", 10);
-      let player1 = new Paddle(canvas.height - 15, "blue");
-      let player2 = new Paddle(0, "red");
+    let bola = new Bola(80, 80, 5, 10, "white", 10);
+    let player1 = new Paddle(canvas.height - 15, "blue");
+    let player2 = new Paddle(0, "red");
 
-      function loop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillRect(0, 0, 15, height);
-        ctx.fillRect(width - 15, 0, 15, height);
+      ctx.fillRect(0, 0, 15, height);
+      ctx.fillRect(width - 15, 0, 15, height);
 
-        // draw dotted line down the middle
-        for (let i = 15*2; i < width - 15; i += 15 * 2) {
-          ctx.fillRect(i, height / 2 - 15 / 2, 15, 15);
-        }
-
-        player1.draw();
-        player1.update();
-
-        player2.draw();
-        player2.update();
-
-        bola.desenhar();
-        bola.update();
+      // draw dotted line down the middle
+      for (let i = 15*2; i < width - 15; i += 15 * 2) {
+        ctx.fillRect(i, height / 2 - 15 / 2, 15, 15);
       }
 
-      var host = window.location.href;
-      console.log(host);
+      player1.draw();
+      player1.update();
 
-      socket.on("game-started", (data) => {
-        console.log(data);
-      });
+      player2.draw();
+      player2.update();
 
-      socket.on("game-sync", (data) => {
-        //console.log(data);
-        gamestate = data;
-      });
+      bola.desenhar();
+      bola.update();
+    }
+
+    var host = window.location.href;
+    console.log(host);
+
+    socket.on("game-started", (data) => {
+      console.log(data);
+    });
+
+    socket.on("game-sync", (data) => {
+      //console.log(data);
+      gamestate = data;
+    });
+
     </script>
 </html>
