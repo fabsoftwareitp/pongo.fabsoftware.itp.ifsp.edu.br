@@ -40,8 +40,8 @@ app.post('/verify', (req, res) => {
 class GameState {
   constructor() {
     this.ball = {x: 615/2, y: 800/2, tamanho: 10};
-    this.velox = 8;
-    this.veloy = 8;
+    this.velox = 7;
+    this.veloy = 7;
     this.width = 615;
     this.height = 800;
   }
@@ -72,6 +72,7 @@ class GameState {
 
     this.ball.x = this.ball.x + this.velox;
     this.ball.y = this.ball.y + this.veloy;
+
   }
 
 }
