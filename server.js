@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-const HERTZ = 30; //Game updates per second
+const HERTZ = 60; //Game updates per second
 
 //Setup Socket.io
 const { Server } = require("socket.io");
