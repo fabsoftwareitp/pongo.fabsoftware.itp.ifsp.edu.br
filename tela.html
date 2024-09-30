@@ -54,11 +54,11 @@
 
     class Bola{
       
-      constructor(x, y, ballSpeed, tamanho, cor) {
+      constructor(x, y, tamanho, cor) {
         this.x = x;
         this.y = y;
-        this.velox = 5;
-        this.veloy = 5;
+        this.velox = 8;
+        this.veloy = 8;
         this.cor = cor;
         this.tamanho = tamanho;
         this.datasync = null;
@@ -223,7 +223,7 @@
       }
     })
 
-    let bola = new Bola(80, 80, 5, 10, "white", 10);
+    let bola = new Bola(80, 80, 10, "white");
     let player1 = new Paddle(canvas.height - 15, "blue");
     let player2 = new Paddle(0, "red");
 

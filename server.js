@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-const HERTZ = 60; //Game updates per second
+const HERTZ = 30; //Game updates per second
 
 //Setup Socket.io
 const { Server } = require("socket.io");
@@ -40,8 +40,8 @@ app.post('/verify', (req, res) => {
 class GameState {
   constructor() {
     this.ball = {x: 615/2, y: 800/2, tamanho: 10};
-    this.velox = 5;
-    this.veloy = 5;
+    this.velox = 8;
+    this.veloy = 8;
     this.width = 615;
     this.height = 800;
   }
@@ -56,7 +56,7 @@ class GameState {
       this.veloy = -this.veloy;
     }
 
-    if(this.ball.y == this.height-20 && this.ball.x >= player1Pos && this.ball.x <= player1Pos+100 || this.ball.y == 20 && this.ball.x >= player2Pos && this.ball.x <= player2Pos+100){
+    if(this.ball.y >= this.height-30 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 30 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
       this.veloy = -this.veloy;
     }
 
