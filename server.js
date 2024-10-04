@@ -72,12 +72,13 @@ class GameState {
 
     this.ball.x = this.ball.x + this.velox;
     this.ball.y = this.ball.y + this.veloy;
-
   }
 
 }
-let gamestate = null;
-const gamestates = [];
+
+let gamestate = new GameState();
+let interval = null;
+var gamestates = [];
 
 // Posição da barra azul
 let player1Pos = 615/2;
@@ -97,6 +98,7 @@ let roomID = app.locals.roomID;
 io.on("connection", (socket) => {
   socket.on('userConnection', ()=> {
     roomID = app.locals.roomID;
+    socket.emit('roomid', roomID);
     console.log(`[${socket.id}] Usuário Conectado`);
     console.log(roomID);
 
@@ -105,10 +107,12 @@ io.on("connection", (socket) => {
       io.to(roomID).emit("player1", socket.id);
       rooms.push(roomID);
       roomUsers += 1;
+      console.log('1');
     }else{
       socket.join(roomID);
       io.to(roomID).emit("player2", socket.id);
       roomUsers += 1;
+      console.log('2');
     }
 
     socket.on('player1Mov', (pos) => {
@@ -130,12 +134,11 @@ io.on("connection", (socket) => {
     })
 
     socket.on('start', () => {
-      gamestate = new GameState();
-
-      setInterval(() => {
+      gamestates[roomID] = new GameState();
+      interval = setInterval(() => {
         io.to(roomID).emit('score', player1Score, player2Score);
-        gamestate.ballUpdate();
-        io.to(roomID).emit("game-sync", gamestate);
+        gamestates[roomID].ballUpdate();
+        io.to(roomID).emit("game-sync", gamestates[roomID]);
         //console.log(gamestate);
     
         //io.emit("game-sync", gamestate);
@@ -144,16 +147,25 @@ io.on("connection", (socket) => {
       io.to(roomID).emit('start', '');
     })
 
+    socket.on('endGame', () => {
+      gamestates[roomID] = null;
+      clearInterval(interval);
+      rooms.splice(rooms.indexOf(roomID), 1);
+      player1Score = 0;
+      player2Score = 0;
+    })
+
     socket.on("disconnect", () => {
       console.log(`[${socket.id}] Usuário Desconectado`);
+      gamestates[roomID] = null;
+      clearInterval(interval);
+      rooms.splice(rooms.indexOf(roomID), 1);
+      player1Score = 0;
+      player2Score = 0;
       
       io.to(roomID).emit('loading', 'white', 'flex');
       io.to(roomID).emit('left', '');
-      if(roomUsers === 0){
-        rooms.splice(rooms.indexOf(roomID), 1);
-      }else{
-        roomUsers -= 1;
-      }
+
     });
   })
 });

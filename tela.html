@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/style.css">
   </head>
   <body id="tela">
-    <img id="fab-logo" src="/Fab.png" alt="Logo da Fábrica de Software">
+    <img id="fab-logo" src="/logo-oficial.svg" alt="Logo da Fábrica de Software">
     <h1 id="p1">0</h1>
     <canvas width="615" height="800" id="game"></canvas>
     <h1 id="p2">0</h1>
@@ -29,6 +29,10 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     var socket = io();
+
+    socket.on("roomid", (id) => {
+      
+    })
 
     socket.emit('userConnection', '');
     let canvas = document.querySelector("#game");
@@ -133,6 +137,10 @@
     socket.on('score', (p1, p2) => {
       score1.innerHTML = p1;
       score2.innerHTML = p2;
+      if(p1 === 10 || p2 === 10) {
+        socket.emit('endGame', '');
+
+      }
     })
 
     resetButton.addEventListener("click", () => {
