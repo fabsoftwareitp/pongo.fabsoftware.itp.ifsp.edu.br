@@ -96,7 +96,7 @@
     class Paddle {
       constructor(y, color) {
           this.color = color;
-          this.velocity = 10;
+          this.velocity = 6;
           this.pos = width/2;
           this.y = y;
       }
@@ -179,7 +179,7 @@
           } 
           // stoped player
           else {
-            player1.pos = player1.velocity; 
+            player1.pos += 0; 
           }
         })  
         
@@ -236,7 +236,7 @@
           } 
           // stoped player
           else {
-            player2.pos = player2.velocity;
+            player2.pos += 0;
           }
         })  
 
