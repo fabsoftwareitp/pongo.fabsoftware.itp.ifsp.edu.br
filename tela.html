@@ -56,6 +56,10 @@
 
     let gamestate;
 
+    startButton.addEventListener("click", () => {
+      socket.emit('start', '');
+    })
+
     class Bola{
       
       constructor(x, y, tamanho, cor) {
@@ -114,9 +118,7 @@
 
     }
 
-    startButton.addEventListener("click", () => {
-      socket.emit('start', '');
-    })
+    
 
     socket.on('start', () => {
       score1.style.display="block";

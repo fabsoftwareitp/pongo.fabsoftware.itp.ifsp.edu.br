@@ -76,7 +76,7 @@ class GameState {
 
 }
 
-let gamestate = new GameState();
+let gamestate = null;
 let interval = null;
 var gamestates = [];
 
@@ -134,11 +134,11 @@ io.on("connection", (socket) => {
     })
 
     socket.on('start', () => {
-      gamestates[roomID] = new GameState();
+      gamestate = new GameState();
       interval = setInterval(() => {
         io.to(roomID).emit('score', player1Score, player2Score);
-        gamestates[roomID].ballUpdate();
-        io.to(roomID).emit("game-sync", gamestates[roomID]);
+        gamestate.ballUpdate();
+        io.to(roomID).emit("game-sync", gamestate);
         //console.log(gamestate);
     
         //io.emit("game-sync", gamestate);
@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on('endGame', () => {
-      gamestates[roomID] = null;
+      gamestate = null;
       clearInterval(interval);
       rooms.splice(rooms.indexOf(roomID), 1);
       player1Score = 0;
@@ -157,7 +157,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
       console.log(`[${socket.id}] Usuário Desconectado`);
-      gamestates[roomID] = null;
+      gamestate = null;
       clearInterval(interval);
       rooms.splice(rooms.indexOf(roomID), 1);
       player1Score = 0;
