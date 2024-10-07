@@ -56,7 +56,7 @@ class GameState {
       this.veloy = -this.veloy;
     }
 
-    if(this.ball.y >= this.height-30 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 30 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
+    if(this.ball.y >= this.height-28 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 28 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
       this.veloy = -this.veloy;
     }
 
