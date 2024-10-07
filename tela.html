@@ -169,12 +169,12 @@
           window.addEventListener('deviceorientation', (e) => {
             beta = e.beta
             // up player1
-            if (e.beta < 90) {
+            if (e.beta < 90 && e.alpha == 90 && e.gamma == -90) {
               player1.pos -= player1.velocity;
               socket.emit("player1Mov", player1.pos);
             }
             // down player1
-            else if (e.beta > 90) {
+            else if (e.beta > 90 && e.alpha == 90 && e.gamma == -90) {
               player1.pos += player1.velocity;
               socket.emit("player1Mov", player1.pos);
             } 
@@ -231,12 +231,12 @@
           window.addEventListener('deviceorientation', (e) => {
             beta = e.beta
             // up player1
-            if (e.beta < 90) {
+            if (e.beta < 90 && e.alpha == 90 && e.gamma == -90) {
               player2.pos -= player2.velocity;
               socket.emit("player2Mov", player2.pos);
             }
             // down player1
-            else if (e.beta > 90) {
+            else if (e.beta > 90 && e.alpha == 90 && e.gamma == -90) {
               player2.pos += player2.velocity;
               socket.emit("player2Mov", player2.pos);
             } 
