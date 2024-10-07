@@ -147,14 +147,6 @@ io.on("connection", (socket) => {
       io.to(roomID).emit('start', '');
     })
 
-    socket.on('endGame', () => {
-      gamestate = null;
-      clearInterval(interval);
-      rooms.splice(rooms.indexOf(roomID), 1);
-      player1Score = 0;
-      player2Score = 0;
-    })
-
     socket.on("disconnect", () => {
       console.log(`[${socket.id}] Usuário Desconectado`);
       gamestate = null;
@@ -162,6 +154,8 @@ io.on("connection", (socket) => {
       rooms.splice(rooms.indexOf(roomID), 1);
       player1Score = 0;
       player2Score = 0;
+      player1Pos = 615/2;
+      player2Pos = 615/2;
       
       io.to(roomID).emit('loading', 'white', 'flex');
       io.to(roomID).emit('left', '');

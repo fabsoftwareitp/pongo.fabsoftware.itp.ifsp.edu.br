@@ -138,14 +138,7 @@
       score1.innerHTML = p1;
       score2.innerHTML = p2;
       if(p1 === 10 || p2 === 10) {
-        socket.emit('endGame', '');
-        score1.style.display="none";
-        score2.style.display="none";
-        canvas.style.display="none";
-        startButton.style.display="block";
-        resetButton.style.display="none";
-        loadingButtons[0].style.display = 'block';
-        loadingButtons[1].style.display = 'block';
+        location.reload();
       }
     })
 
