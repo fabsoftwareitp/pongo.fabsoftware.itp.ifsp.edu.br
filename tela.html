@@ -58,8 +58,14 @@
 
     let gamestate;
 
+    let roomID;
+
+    socket.on("roomid", (id) => {
+      roomID = id;
+    })
+
     startButton.addEventListener("click", () => {
-      socket.emit('start', '');
+      socket.emit('start', roomID);
     })
 
     class Bola{
@@ -67,8 +73,8 @@
       constructor(x, y, tamanho, cor) {
         this.x = x;
         this.y = y;
-        this.velox = 7;
-        this.veloy = 7;
+        this.velox = 10;
+        this.veloy = 10;
         this.cor = cor;
         this.tamanho = tamanho;
         this.datasync = null;
@@ -166,7 +172,8 @@
 
         if(detectar_mobile() === true){
 
-          window.addEventListener('deviceorientation', (e) => {
+          setInterval(() => {
+            window.addEventListener('deviceorientation', (e) => {
             beta = e.gamma
             // up player1
             if (e.gamma < 0) {
@@ -182,6 +189,7 @@
             else {
               player1.pos += 0; 
             }
+          }, 1000);
           })  
 
         }else{
@@ -231,19 +239,21 @@
           window.addEventListener('deviceorientation', (e) => {
             beta = e.gamma
             // up player1
-            if (e.gamma < 0) {
+            setInterval(() => {
+              if (e.gamma < 0) {
               player2.pos -= player2.velocity;
               socket.emit("player2Mov", player2.pos);
-            }
-            // down player1
-            else if (e.gamma > 0) {
-              player2.pos += player2.velocity;
-              socket.emit("player2Mov", player2.pos);
-            } 
-            // stoped player
-            else {
-              player2.pos += 0;
-            }
+              }
+              // down player1
+              else if (e.gamma > 0) {
+                player2.pos += player2.velocity;
+                socket.emit("player2Mov", player2.pos);
+              } 
+              // stoped player
+              else {
+                player2.pos += 0;
+              }
+            }, 1000);
           })  
 
         }else{
@@ -313,8 +323,10 @@
     });
 
     socket.on("game-sync", (data) => {
-      //console.log(data);
-      gamestate = data;
+      if(data.id == roomID){
+        console.log(data.id);
+        gamestate = data;
+      }
     });
 
     </script>

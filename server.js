@@ -37,44 +37,6 @@ app.post('/verify', (req, res) => {
 })
 
 // classe do estado de jogo
-class GameState {
-  constructor() {
-    this.ball = {x: 615/2, y: 800/2, tamanho: 10};
-    this.velox = 7;
-    this.veloy = 7;
-    this.width = 615;
-    this.height = 800;
-  }
-
-  // mecânicas da bolinha
-  ballUpdate() {
-    if (this.ball.x + this.ball.tamanho > this.width || this.ball.x - this.ball.tamanho < 0) {
-      this.velox = -this.velox;
-    }
-
-    if (this.ball.y + this.ball.tamanho > this.height || this.ball.y - this.ball.tamanho < 0) {
-      this.veloy = -this.veloy;
-    }
-
-    if(this.ball.y >= this.height-28 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 28 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
-      this.veloy = -this.veloy;
-    }
-
-    if(this.ball.y < 10){
-      this.ball.x = 615/2
-      this.ball.y = 800/2
-      player2Score += 1;
-    }else if(this.ball.y > this.height - 10){
-      this.ball.x = 615/2
-      this.ball.y = 800/2
-      player1Score += 1;
-    }
-
-    this.ball.x = this.ball.x + this.velox;
-    this.ball.y = this.ball.y + this.veloy;
-  }
-
-}
 
 let gamestate = null;
 let interval = null;
@@ -94,10 +56,53 @@ let player2Score = 0;
 const rooms = [];
 let roomUsers = 0;
 let roomID = app.locals.roomID;
+let state = [];
 
 io.on("connection", (socket) => {
+
+  class GameState {
+    constructor(id) {
+      this.ball = {x: 615/2, y: 800/2, tamanho: 10};
+      this.velox = 10;
+      this.veloy = 10;
+      this.width = 615;
+      this.height = 800;
+      this.id = id;
+    }
+  
+    // mecânicas da bolinha
+    ballUpdate() {
+      if (this.ball.x + this.ball.tamanho > this.width || this.ball.x - this.ball.tamanho < 0) {
+        this.velox = -this.velox;
+      }
+  
+      if (this.ball.y + this.ball.tamanho > this.height || this.ball.y - this.ball.tamanho < 0) {
+        this.veloy = -this.veloy;
+      }
+  
+      if(this.ball.y >= this.height-28 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 28 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
+        this.veloy = -this.veloy;
+      }
+  
+      if(this.ball.y < 10){
+        this.ball.x = 615/2
+        this.ball.y = 800/2
+        player2Score += 1;
+      }else if(this.ball.y > this.height - 10){
+        this.ball.x = 615/2
+        this.ball.y = 800/2
+        player1Score += 1;
+      }
+  
+      this.ball.x = this.ball.x + this.velox;
+      this.ball.y = this.ball.y + this.veloy;
+    }
+  
+  }
+
   socket.on('userConnection', ()=> {
     roomID = app.locals.roomID;
+  
     socket.emit('roomid', roomID);
     console.log(`[${socket.id}] Usuário Conectado`);
     console.log(roomID);
@@ -133,16 +138,18 @@ io.on("connection", (socket) => {
       io.to(roomID).emit('loading', green, none);
     })
 
-    socket.on('start', () => {
-      gamestate = new GameState();
-      interval = setInterval(() => {
-        io.to(roomID).emit('score', player1Score, player2Score);
-        gamestate.ballUpdate();
-        io.to(roomID).emit("game-sync", gamestate);
-        //console.log(gamestate);
-    
-        //io.emit("game-sync", gamestate);
-      }, (1 / HERTZ) * 1000);
+    socket.on('start', (id) => {
+      state.push(new GameState(roomID));
+      
+        for(let i = 0; i < state.length; i++) {
+          if(state[i].id == id) {
+            interval = setInterval(() => {
+              io.to(roomID).emit('score', player1Score, player2Score);
+              state[i].ballUpdate();
+              io.to(roomID).emit("game-sync", state[i]);
+            }, (1 / HERTZ) * 1000);
+          }
+        }
 
       io.to(roomID).emit('start', '');
     })
