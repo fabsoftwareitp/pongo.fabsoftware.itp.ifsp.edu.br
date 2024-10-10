@@ -164,35 +164,16 @@
         socket.on('player2Mov', (pos) => {
           player2.pos = pos;
         })
-
-        window.addEventListener('deviceorientation', (e) => {
-          beta = e.beta
-          // up player1
-          if (e.beta < -10) {
+        
+        window.addEventListener('keydown', (e) => {
+          if (e.key === "ArrowLeft") {
             player1.pos -= player1.velocity;
             socket.emit("player1Mov", player1.pos);
-          }
-          // down player1
-          else if (e.beta > 10) {
+          }else if (e.key === "ArrowRight") {
             player1.pos += player1.velocity;
             socket.emit("player1Mov", player1.pos);
-          } 
-          // stoped player
-          else {
-            player1.pos += 0; 
           }
-        })  
-        
-
-        // window.addEventListener('keydown', (e) => {
-        //   if (e.key === "ArrowLeft") {
-        //     player1.pos -= player1.velocity;
-        //     socket.emit("player1Mov", player1.pos);
-        //   }else if (e.key === "ArrowRight") {
-        //     player1.pos += player1.velocity;
-        //     socket.emit("player1Mov", player1.pos);
-        //   }
-        // })
+        })
 
         loadingButtons[0].style.backgroundColor = 'green';
 
@@ -222,33 +203,15 @@
           player1.pos = pos;
         })
 
-        window.addEventListener('deviceorientation', (e) => {
-          beta = e.beta
-          // up player1
-          if (e.beta < -10) {
+        window.addEventListener('keydown', (e) => {
+          if (e.key === "ArrowLeft") {
             player2.pos -= player2.velocity;
             socket.emit("player2Mov", player2.pos);
-          }
-          // down player1
-          else if (e.beta > 10) {
+          }else if (e.key === "ArrowRight") {
             player2.pos += player2.velocity;
             socket.emit("player2Mov", player2.pos);
-          } 
-          // stoped player
-          else {
-            player2.pos += 0;
           }
-        })  
-
-        // window.addEventListener('keydown', (e) => {
-        //   if (e.key === "ArrowLeft") {
-        //     player2.pos -= player2.velocity;
-        //     socket.emit("player2Mov", player2.pos);
-        //   }else if (e.key === "ArrowRight") {
-        //     player2.pos += player2.velocity;
-        //     socket.emit("player2Mov", player2.pos);
-        //   }
-        // })
+        })
 
         // emite o evento loading que vai mudar os botões de loading e a mensagem de espera de jogador
         socket.emit('loading', 'green', 'none');
