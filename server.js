@@ -40,8 +40,8 @@ app.post('/verify', (req, res) => {
 class GameState {
   constructor() {
     this.ball = {x: 615/2, y: 800/2, tamanho: 10};
-    this.velox = 7;
-    this.veloy = 7;
+    this.velox = 10;
+    this.veloy = 10;
     this.width = 615;
     this.height = 800;
   }
@@ -63,11 +63,11 @@ class GameState {
     if(this.ball.y < 10){
       this.ball.x = 615/2
       this.ball.y = 800/2
-      player1Score += 1;
+      player2Score += 1;
     }else if(this.ball.y > this.height - 10){
       this.ball.x = 615/2
       this.ball.y = 800/2
-      player2Score += 1;
+      player1Score += 1;
     }
 
     this.ball.x = this.ball.x + this.velox;
@@ -145,14 +145,6 @@ io.on("connection", (socket) => {
       }, (1 / HERTZ) * 1000);
 
       io.to(roomID).emit('start', '');
-    })
-
-    socket.on('endGame', () => {
-      gamestate = null;
-      clearInterval(interval);
-      rooms.splice(rooms.indexOf(roomID), 1);
-      player1Score = 0;
-      player2Score = 0;
     })
 
     socket.on("disconnect", () => {

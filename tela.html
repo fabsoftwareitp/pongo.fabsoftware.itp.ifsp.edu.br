@@ -65,8 +65,8 @@
       constructor(x, y, tamanho, cor) {
         this.x = x;
         this.y = y;
-        this.velox = 7;
-        this.veloy = 7;
+        this.velox = 10;
+        this.veloy = 10;
         this.cor = cor;
         this.tamanho = tamanho;
         this.datasync = null;
@@ -140,8 +140,7 @@
       score1.innerHTML = p1;
       score2.innerHTML = p2;
       if(p1 === 10 || p2 === 10) {
-        socket.emit('endGame', '');
-
+        location.reload();
       }
     })
 
