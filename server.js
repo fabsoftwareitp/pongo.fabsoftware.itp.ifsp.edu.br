@@ -30,7 +30,8 @@ app.use(express.urlencoded({
 
 app.post('/verify', (req, res) => {
   if(rooms.indexOf(req.body.roomID) == -1){
-    res.redirect('/');
+    // res.redirect('/');
+    res.redirect('/tela?roomID='+req.body.roomID);;
   }else{
     res.redirect('/tela?roomID='+req.body.roomID);;
   }
@@ -126,6 +127,12 @@ io.on("connection", (socket) => {
     })
 
     socket.on('reset', (reset) => {
+      player1Score = 0;
+      player2Score = 0;
+      player1Pos = 615/2;
+      player2Pos = 615/2;
+      gamestate.ball.x = 615/2
+      gamestate.ball.y = 800/2
       io.to(roomID).emit('reset', reset);
     })
 

@@ -177,11 +177,11 @@
         <div class="main-div">
             <h1>Pong</h1>
             <form method="POST" action="/verify" id="form">
-                <label name="roomID">Nome da sala :</label>
-                <input type="text" required id="name" name="roomID">
+                <!-- <label name="roomID">Nome da sala :</label>
+                <input type="text" required id="name" name="roomID"> -->
                 <button id="submitButton">Entrar</button>
             </form>
-            <button id="createRoom">Criar Sala</button>
+            <!-- <button id="createRoom">Criar Sala</button> -->
             <!--<audio controls autoplay loop>
             <source src="https://dl.dropboxusercontent.com/s/b37dqgwv8ybh5e6/Bounce_2.mp3?token_hash=AAHWNT4XwJMptv1vwUdpRlXGXIQLmn8r_D18rJC9ovhG-A&dl=1" type="audio/mpeg">-->
             </audio>
@@ -219,9 +219,9 @@
         return result;
     }
 
-    createRoom.addEventListener('click', () => {
+    form.addEventListener('submit', () => {
         const roomID = makeid(8);
-        window.location.href = "/tela?roomID="+roomID;
+        window.location.href = "/tela?roomID="+"";
     })
 
 </script>

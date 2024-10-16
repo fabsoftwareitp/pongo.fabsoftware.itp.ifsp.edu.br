@@ -145,13 +145,15 @@
     })
 
     resetButton.addEventListener("click", () => {
-      reset = true;
-      socket.emit('reset', reset);
+      socket.emit('reset', "");
     })
 
       // Recebe do server o evento que reseta o jogo nos clientes
-    socket.on('reset', (re) => {
-      reset = re;
+    socket.on('reset', () => {
+      score1.innerHTML = 0;
+      score2.innerHTML = 0;
+      player1.pos = 615/2;
+      player2.pos = 615/2;
     })    
 
     socket.on('player1', (id) => {
