@@ -9,7 +9,7 @@ html, body {
     align-items: center;
     justify-content: center;
   }
-  
+
   #game {
     display: none;
   }
@@ -55,20 +55,27 @@ html, body {
     filter: opacity(0.1);
     z-index: -1;
   }
+
+  #winner {
+    position: absolute;
+    color: aliceblue;
+    bottom: 35%;
+    font-family: "Press Start 2P", system-ui;
+  }
   
   #start {
     width: 20vw;
     height: 5vh;
-    font-size: 2rem;
+    font-size: 1.5rem;
     border-radius: 15px;
+    font-family: "Press Start 2P", system-ui;
   }
   
   #waiting {
-    width: 20vw;
-    bottom: 40%;
-    font-size: 2rem;
+    font-size: 1.5rem;
     border-radius: 15px;
     color: aliceblue;
+    font-family: "Press Start 2P", system-ui;
   }
   
   .main-div {
@@ -77,7 +84,6 @@ html, body {
     gap: 40px;
     justify-content: center;
     align-items: center;
-    
   }
   
   .loading {

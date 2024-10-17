@@ -57,15 +57,15 @@ class GameState {
       this.veloy = -this.veloy;
     }
 
-    if(this.ball.y >= this.height-30 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 30 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
+    if(this.ball.y >= this.height-28 && this.ball.x >= player1Pos-10 && this.ball.x <= player1Pos+100 || this.ball.y <= 28 && this.ball.x >= player2Pos-10 && this.ball.x <= player2Pos+100){
       this.veloy = -this.veloy;
     }
 
-    if(this.ball.y < 10){
+    if(this.ball.y < 17){
       this.ball.x = 615/2
       this.ball.y = 800/2
       player2Score += 1;
-    }else if(this.ball.y > this.height - 10){
+    }else if(this.ball.y > this.height - 17){
       this.ball.x = 615/2
       this.ball.y = 800/2
       player1Score += 1;
@@ -154,6 +154,16 @@ io.on("connection", (socket) => {
       io.to(roomID).emit('start', '');
     })
 
+    socket.on("winner", (texto, cor)=>{
+      gamestate = null;
+      clearInterval(interval);
+      player1Score = 0;
+      player2Score = 0;
+      player1Pos = 615/2;
+      player2Pos = 615/2;
+      io.to(roomID).emit("winner", texto, cor);
+    })
+
     socket.on("disconnect", () => {
       console.log(`[${socket.id}] Usuário Desconectado`);
       gamestate = null;
@@ -161,6 +171,8 @@ io.on("connection", (socket) => {
       rooms.splice(rooms.indexOf(roomID), 1);
       player1Score = 0;
       player2Score = 0;
+      player1Pos = 615/2;
+      player2Pos = 615/2;
       
       io.to(roomID).emit('loading', 'white', 'flex');
       io.to(roomID).emit('left', '');

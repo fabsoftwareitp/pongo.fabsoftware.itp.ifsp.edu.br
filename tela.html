@@ -4,12 +4,16 @@
     <title>Pong</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   </head>
   <body id="tela">
     <img id="fab-logo" src="/logo-oficial.svg" alt="Logo da Fábrica de Software">
     <h1 id="p1">0</h1>
     <canvas width="615" height="800" id="game"></canvas>
     <h1 id="p2">0</h1>
+    <h1 id="winner"></h1>
   
     <div class="main-div">
       
@@ -50,7 +54,7 @@
     var loadingButtons = document.querySelectorAll('.loading')
     var controlButtons = document.querySelectorAll('.control')
     var resetButton = document.getElementById("reset");
-    let reset = false;
+    var winnerText = document.getElementById("winner");
 
     let ctx = canvas.getContext("2d");
 
@@ -96,7 +100,7 @@
     class Paddle {
       constructor(y, color) {
           this.color = color;
-          this.velocity = 6;
+          this.velocity = 10;
           this.pos = width/2;
           this.y = y;
       }
@@ -118,8 +122,6 @@
 
     }
 
-    
-
     socket.on('start', () => {
       score1.style.display="block";
       score2.style.display="block";
@@ -128,6 +130,7 @@
       resetButton.style.display="block";
       loadingButtons[0].style.display = 'none';
       loadingButtons[1].style.display = 'none';
+      winnerText.style.display = 'none';
 
       //update
       interval = setInterval(() => {
@@ -139,9 +142,21 @@
     socket.on('score', (p1, p2) => {
       score1.innerHTML = p1;
       score2.innerHTML = p2;
-      if(p1 === 10 || p2 === 10) {
-        location.reload();
-      }
+      if(p1 == 10 || p2 == 10){
+        if(p1 == 10){
+          socket.emit("winner", "Barra vermelha ganhou!", "red");
+        }else{
+          socket.emit("winner", "Barra azul ganhou!", "blue");
+        }
+        score1.style.display="none";
+        score2.style.display="none";
+        canvas.style.display="none";
+        startButton.style.display="block";
+        resetButton.style.display="none";
+        loadingButtons[0].style.display = 'span';
+        loadingButtons[1].style.display = 'span';
+        winnerText.style.display = 'block';
+      }      
     })
 
     resetButton.addEventListener("click", () => {
@@ -154,7 +169,12 @@
       score2.innerHTML = 0;
       player1.pos = 615/2;
       player2.pos = 615/2;
-    })    
+    })   
+    
+    socket.on("winner", (texto, cor) => {
+      winnerText.innerHTML = texto;
+      winnerText.style.color = cor;
+    })
 
     socket.on('player1', (id) => {
       if(id === socket.id){   
